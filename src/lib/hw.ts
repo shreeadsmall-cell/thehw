@@ -62,8 +62,9 @@ export function todayISO() {
 }
 
 export function formatDate(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1).toLocaleDateString("en-GB", {
+  const parts = iso.split("-").map(Number);
+  const [y, m, d] = [parts[0] ?? 1970, parts[1] ?? 1, parts[2] ?? 1];
+  return new Date(y, m - 1, d).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "long",
     year: "numeric",
