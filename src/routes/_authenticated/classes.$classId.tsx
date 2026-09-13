@@ -1,0 +1,7 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getClass } from "@/lib/data";
+import { PageHeader, EmptyState, ErrorBlock, LoadingBlock } from "@/components/common";
+import { Button } from "@/components/ui/button";
+export const Route = createFileRoute("/_authenticated/classes/$classId")({ head: () => ({ meta: [{ title: "Class Details — School Homework Tracker" }] }), component: ClassDetailsPage });
+function ClassDetailsPage() { const { classId } = Route.useParams(); const item = useQuery({ queryKey: ["class", classId], queryFn: () => getClass(classId) }); if (item.isLoading) return <LoadingBlock />; if (item.error) return <ErrorBlock error={item.error as Error} />; if (!item.data) return <EmptyState title="Class not found" />; return <div><PageHeader title={item.data.class_name} description={`${item.data.subjects.length} subjects · ${item.data.students[0]?.count ?? 0} students`} actions={<><Button asChild><Link to="/homework" search={{ classId }}>Take homework</Link></Button><Button variant="outline" asChild><Link to="/students">View students</Link></Button><Button variant="outline" asChild><Link to="/reports">View reports</Link></Button></>} /><h2 className="mb-3 text-lg font-semibold">Subjects</h2><div className="flex flex-wrap gap-2">{item.data.subjects.map((subject) => <span className="rounded-full border px-3 py-1 text-sm" key={subject.id}>{subject.subject_name}</span>)}</div></div>; }

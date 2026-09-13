@@ -98,7 +98,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
       <NavLinks items={isAdmin ? ADMIN_NAV : TEACHER_NAV} onNavigate={onNavigate} />
       <div className="mt-auto border-t border-sidebar-border p-3">
         <div className="px-2 pb-3">
-          <p className="truncate text-sm font-medium">{user?.fullName ?? <Skeleton className="h-4 w-24" />}</p>
+          <div className="truncate text-sm font-medium">{user?.fullName ?? <Skeleton className="h-4 w-24" />}</div>
           <p className="truncate text-xs text-sidebar-foreground/60">{user?.email}</p>
         </div>
         <Button
