@@ -206,3 +206,88 @@ export async function countAll(table: string) {
   if (error) throw new Error(error.message);
   return count ?? 0;
 }
+
+/* ---------------- mutations ---------------- */
+
+export async function createClass(input: { class_name: string; teacher_id: string }) {
+  const { data, error } = await supabase
+    .from("classes")
+    .insert({ class_name: input.class_name.trim(), teacher_id: input.teacher_id })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return data.id;
+}
+
+export async function updateClass(id: string, input: { class_name?: string; teacher_id?: string }) {
+  const { error } = await supabase.from("classes").update(input).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteClass(id: string) {
+  const { error } = await supabase.from("classes").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function addSubject(classId: string, name: string) {
+  const { error } = await supabase
+    .from("subjects")
+    .insert({ class_id: classId, subject_name: name.trim() });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteSubject(id: string) {
+  const { error } = await supabase.from("subjects").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function addStudent(input: {
+  class_id: string;
+  roll_number: number;
+  student_name: string;
+}) {
+  const { error } = await supabase.from("students").insert(input);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateStudent(
+  id: string,
+  input: { roll_number?: number; student_name?: string; class_id?: string },
+) {
+  const { error } = await supabase.from("students").update(input).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteStudent(id: string) {
+  const { error } = await supabase.from("students").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function bulkAddStudents(
+  classId: string,
+  rows: { roll_number: number; student_name: string }[],
+) {
+  const { error } = await supabase
+    .from("students")
+    .upsert(
+      rows.map((r) => ({ class_id: classId, ...r })),
+      { onConflict: "class_id,roll_number" },
+    );
+  if (error) throw new Error(error.message);
+  return rows.length;
+}
+
+export async function deleteSession(id: string) {
+  const { error } = await supabase.from("homework_sessions").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function getStudent(id: string) {
+  const { data, error } = await supabase
+    .from("students")
+    .select("id, class_id, roll_number, student_name, classes(class_name)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as unknown as (StudentRow & { classes: { class_name: string } | null }) | null) ?? null;
+}
