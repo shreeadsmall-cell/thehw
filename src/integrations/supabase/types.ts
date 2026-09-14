@@ -362,6 +362,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_school: { Args: { _school_id: string }; Returns: boolean }
       current_school_id: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -371,6 +372,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_school_admin: { Args: never; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
       owns_class: { Args: { _class_id: string }; Returns: boolean }
       owns_session: { Args: { _session_id: string }; Returns: boolean }
       owns_student: { Args: { _student_id: string }; Returns: boolean }
