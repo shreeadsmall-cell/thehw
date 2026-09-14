@@ -75,12 +75,12 @@ const ENTRY_SELECT =
   "id, status, remarks, student_id, homework_session_id, students!inner(roll_number, student_name, class_id), homework_sessions!inner(homework_date, class_id, subject_id, subjects(subject_name), classes(class_name), profiles(full_name))";
 
 export type EntryFilters = {
-  classId?: string;
-  subjectId?: string;
-  studentId?: string;
-  from?: string;
-  to?: string;
-  status?: HwStatus;
+  classId?: string | undefined;
+  subjectId?: string | undefined;
+  studentId?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
+  status?: HwStatus | undefined;
 };
 
 export async function getEntries(f: EntryFilters): Promise<EntryRow[]> {
@@ -109,7 +109,7 @@ export type SessionRow = {
   profiles?: { full_name: string } | null;
 };
 
-export async function getSessions(opts: { date?: string; classId?: string } = {}) {
+export async function getSessions(opts: { date?: string | undefined; classId?: string | undefined } = {}) {
   let q = supabase
     .from("homework_sessions")
     .select(
@@ -144,7 +144,7 @@ export async function getSessionEntries(sessionId: string) {
 }
 
 export async function saveHomework(input: {
-  sessionId?: string | null;
+  sessionId?: string | null | undefined;
   classId: string;
   subjectId: string;
   teacherId: string;

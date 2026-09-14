@@ -19,7 +19,7 @@ type ImportRow = {
   rowNumber: number;
   roll_number: number | null;
   student_name: string;
-  error?: string;
+  error?: string | undefined;
 };
 
 const REPORT_MESSAGE =
@@ -88,7 +88,7 @@ function ImportStudentsPage() {
       const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
       const sheetName = workbook.SheetNames[0];
       if (!sheetName) throw new Error("The selected file does not contain a worksheet.");
-      const matrix = XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[sheetName], {
+      const matrix = XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[sheetName]!, {
         header: 1,
         defval: "",
         blankrows: false,
