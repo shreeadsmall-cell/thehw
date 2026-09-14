@@ -24,7 +24,7 @@ function StudentsPage() {
   const students = useQuery({ queryKey: ["students", classId], queryFn: () => getStudents(classId), enabled: Boolean(classId) });
   const entries = useQuery({ queryKey: ["entries", classId], queryFn: () => getEntries({ classId }), enabled: Boolean(classId) });
   const remove = useMutation({ mutationFn: deleteStudent, onSuccess: () => { toast.success("Student deleted"); queryClient.invalidateQueries({ queryKey: ["students", classId] }); }, onError: (e: Error) => toast.error(e.message) });
-  const save = useMutation({ mutationFn: (value: { id?: string; roll_number: number; student_name: string }) => value.id ? updateStudent(value.id, { roll_number: value.roll_number, student_name: value.student_name }) : addStudent({ class_id: classId, roll_number: value.roll_number, student_name: value.student_name }), onSuccess: () => { toast.success(editing ? "Student updated" : "Student added"); setEditing(null); queryClient.invalidateQueries({ queryKey: ["students", classId] }); }, onError: (e: Error) => toast.error(e.message) });
+  const save = useMutation({ mutationFn: (value: { id?: string | undefined; roll_number: number; student_name: string }) => value.id ? updateStudent(value.id, { roll_number: value.roll_number, student_name: value.student_name }) : addStudent({ class_id: classId, roll_number: value.roll_number, student_name: value.student_name }), onSuccess: () => { toast.success(editing ? "Student updated" : "Student added"); setEditing(null); queryClient.invalidateQueries({ queryKey: ["students", classId] }); }, onError: (e: Error) => toast.error(e.message) });
   if (pathname === "/students/import") return <Outlet />;
 
   const selected = classes.data?.find((item) => item.id === classId);
