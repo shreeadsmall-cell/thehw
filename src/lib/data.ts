@@ -179,15 +179,78 @@ export async function saveHomework(input: {
   return sessionId!;
 }
 
-export async function getTeachers() {
+export type SchoolRow = {
+  id: string;
+  school_name: string;
+  school_code: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
+  phone: string | null;
+  email: string | null;
+  status: string;
+};
+
+export async function getSchools(): Promise<SchoolRow[]> {
+  const { data, error } = await supabase
+    .from("schools")
+    .select("id, school_name, school_code, address, city, state, pincode, phone, email, status")
+    .order("school_name");
+  if (error) throw new Error(error.message);
+  return (data ?? []) as SchoolRow[];
+}
+
+export type StaffRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  mobile: string | null;
+  status: string;
+  school_id: string | null;
+  school_name?: string | null;
+};
+
+async function getStaff(kind: "teacher" | "school_admin"): Promise<StaffRow[]> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, mobile, status, created_at")
+    .select("id, full_name, email, mobile, status, school_id, created_at, schools(school_name)")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-  const adminIds = new Set((roles ?? []).filter((r) => r.role === "admin").map((r) => r.user_id));
-  return (data ?? []).filter((p) => !adminIds.has(p.id));
+  const byUser = new Map<string, Set<string>>();
+  for (const r of roles ?? []) {
+    const set = byUser.get(r.user_id) ?? new Set<string>();
+    set.add(r.role as string);
+    byUser.set(r.user_id, set);
+  }
+  const isAdminRole = (s: Set<string> | undefined) =>
+    !!s && (s.has("admin") || s.has("school_admin") || s.has("super_admin"));
+
+  return (data ?? [])
+    .filter((p) => {
+      const set = byUser.get(p.id);
+      if (kind === "teacher") return !isAdminRole(set);
+      return !!set && (set.has("school_admin") || set.has("admin")) && !set.has("super_admin");
+    })
+    .map((p) => ({
+      id: p.id,
+      full_name: p.full_name,
+      email: p.email,
+      mobile: p.mobile,
+      status: p.status,
+      school_id: p.school_id ?? null,
+      school_name:
+        (p as unknown as { schools?: { school_name: string } | null }).schools?.school_name ?? null,
+    }));
+}
+
+export async function getTeachers() {
+  return getStaff("teacher");
+}
+
+export async function getSchoolAdmins() {
+  return getStaff("school_admin");
 }
 
 export async function getAllStudents() {
