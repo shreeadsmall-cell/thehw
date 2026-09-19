@@ -13,6 +13,8 @@ import {
   Menu,
   School,
   History,
+  Building2,
+  ShieldCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -83,7 +85,7 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: (() =>
 }
 
 function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
-  const { user, isAdmin } = useAuth();
+  const { user, isSuperAdmin, isSchoolAdmin } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -103,11 +105,14 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">Homework Tracker</p>
           <p className="truncate text-xs text-sidebar-foreground/60">
-            {isAdmin ? "Administrator" : "Teacher"}
+            {isSuperAdmin ? "Super Administrator" : isSchoolAdmin ? "School Administrator" : "Teacher"}
           </p>
         </div>
       </div>
-      <NavLinks items={isAdmin ? ADMIN_NAV : TEACHER_NAV} onNavigate={onNavigate} />
+      <NavLinks
+        items={isSuperAdmin ? SUPER_ADMIN_NAV : isSchoolAdmin ? SCHOOL_ADMIN_NAV : TEACHER_NAV}
+        onNavigate={onNavigate}
+      />
       <div className="mt-auto border-t border-sidebar-border p-3">
         <div className="px-2 pb-3">
           <div className="truncate text-sm font-medium">{user?.fullName ?? <Skeleton className="h-4 w-24" />}</div>
