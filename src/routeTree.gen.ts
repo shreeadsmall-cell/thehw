@@ -18,6 +18,7 @@ import { Route as AuthenticatedHomeworkRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedClassesClassIdRouteImport } from './routes/_authenticated/classes.$classId'
 import { Route as AuthenticatedStudentsImportRouteImport } from './routes/_authenticated/students.import'
@@ -67,6 +68,11 @@ const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
   id: '/teachers',
   path: '/teachers',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/classes/$classId': typeof AuthenticatedClassesClassIdRoute
   '/students/import': typeof AuthenticatedStudentsImportRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/classes/$classId': typeof AuthenticatedClassesClassIdRoute
   '/students/import': typeof AuthenticatedStudentsImportRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
   '/_authenticated/classes/$classId': typeof AuthenticatedClassesClassIdRoute
   '/_authenticated/students/import': typeof AuthenticatedStudentsImportRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/super-admin'
     | '/teachers'
     | '/classes/$classId'
     | '/students/import'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/super-admin'
     | '/teachers'
     | '/classes/$classId'
     | '/students/import'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/students'
+    | '/_authenticated/super-admin'
     | '/_authenticated/teachers'
     | '/_authenticated/classes/$classId'
     | '/_authenticated/students/import'
@@ -251,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/super-admin': {
+      id: '/_authenticated/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/teachers': {
       id: '/_authenticated/teachers'
       path: '/teachers'
@@ -314,6 +333,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
 }
 
@@ -325,6 +345,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
 }
 
