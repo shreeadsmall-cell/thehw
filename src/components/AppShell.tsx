@@ -23,14 +23,26 @@ import { cn } from "@/lib/utils";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
 
-const ADMIN_NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+const SUPER_ADMIN_NAV: NavItem[] = [
+  { to: "/super-admin", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/schools", label: "Schools", icon: Building2 },
+  { to: "/school-admins", label: "School Admins", icon: ShieldCheck },
   { to: "/teachers", label: "Teachers", icon: Users },
   { to: "/classes", label: "Classes", icon: School },
   { to: "/students", label: "Students", icon: GraduationCap },
-  { to: "/history", label: "Homework Records", icon: History },
+  { to: "/history", label: "Homework", icon: History },
   { to: "/reports", label: "Reports", icon: FileBarChart },
   { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const SCHOOL_ADMIN_NAV: NavItem[] = [
+  { to: "/school-admin", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/teachers", label: "Teachers", icon: Users },
+  { to: "/classes", label: "Classes", icon: School },
+  { to: "/students", label: "Students", icon: GraduationCap },
+  { to: "/history", label: "Homework", icon: History },
+  { to: "/reports", label: "Reports", icon: FileBarChart },
+  { to: "/settings", label: "School Settings", icon: Settings },
 ];
 
 const TEACHER_NAV: NavItem[] = [
