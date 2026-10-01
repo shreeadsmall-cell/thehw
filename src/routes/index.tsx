@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ClipboardList, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchCurrentUser, homeForRole } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,22 +32,30 @@ export const Route = createFileRoute("/")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
 
+  async function goHome() {
+    const u = await fetchCurrentUser();
+    queryClient.setQueryData(["current-user"], u);
+    navigate({ to: u ? homeForRole(u.role) : "/dashboard", replace: true });
+  }
+
   useEffect(() => {
     let active = true;
     supabase.auth.getUser().then(({ data }) => {
       if (!active) return;
-      if (data.user) navigate({ to: "/dashboard", replace: true });
+      if (data.user) void goHome();
       else setChecking(false);
     });
     return () => {
       active = false;
     };
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,7 +66,7 @@ function LoginPage() {
         password,
       });
       if (error) throw error;
-      navigate({ to: "/dashboard", replace: true });
+      await goHome();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Unable to sign in");
     } finally {
