@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ClipboardList, Loader2 } from "lucide-react";
+import { GraduationCap, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,6 @@ import { fetchCurrentUser, homeForRole } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -37,6 +36,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [show, setShow] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
 
   async function goHome() {
     const u = await fetchCurrentUser();
@@ -59,29 +60,21 @@ function LoginPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const next: { email?: string; password?: string } = {};
+    if (!email.trim()) next.email = "Please enter your email.";
+    if (!password) next.password = "Please enter your password.";
+    setErrors(next);
+    if (next.email || next.password) return;
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) throw error;
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) {
+        setErrors({ form: "Invalid email or password." });
+        return;
+      }
       await goHome();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Unable to sign in");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function firstTimeSetup() {
-    setBusy(true);
-    try {
-      const res = await fetch("/api/public/bootstrap-admin", { method: "POST" });
-      const json = (await res.json()) as { message: string };
-      toast.success(json.message);
     } catch {
-      toast.error("Setup could not be completed. Please try again.");
+      toast.error("Unable to sign in. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -96,59 +89,77 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-muted px-4 py-10">
-      <div className="w-full max-w-md">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/40 px-4 py-10">
+      <div className="w-full max-w-md sm:max-w-lg">
         <div className="mb-8 text-center">
-          <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <ClipboardList className="size-7" />
+          <span className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+            <GraduationCap className="size-8" aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-            School Homework Tracker
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sign in to record homework and view reports
+          <h1 className="mt-5 text-3xl font-semibold tracking-tight text-foreground">School Homework Tracker</h1>
+          <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+            Smart School Management System for Homework, Students &amp; Reports
           </p>
         </div>
-        <Card className="shadow-sm">
-          <CardContent className="p-6">
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@school.edu"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-lg sm:p-8">
+          <form onSubmit={onSubmit} noValidate className="space-y-5">
+            {errors.form ? (
+              <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {errors.form}
+              </p>
+            ) : null}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                className="h-11"
+              />
+              {errors.email ? <p id="email-error" className="text-sm text-destructive">{errors.email}</p> : null}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
                 <Input
                   id="password"
-                  type="password"
+                  type={show ? "text" : "password"}
                   autoComplete="current-password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
+                  className="h-11 pr-11"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShow((v) => !v)}
+                  aria-label={show ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>
-                {busy ? <Loader2 className="size-4 animate-spin" /> : "Sign in"}
-              </Button>
-            </form>
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              Teacher accounts are created by the administrator.
-            </p>
-          </CardContent>
-        </Card>
-        <div className="mt-4 text-center">
-          <Button variant="ghost" size="sm" onClick={firstTimeSetup} disabled={busy}>
-            First-time setup
-          </Button>
+              {errors.password ? <p id="password-error" className="text-sm text-destructive">{errors.password}</p> : null}
+            </div>
+            <Button type="submit" className="h-11 w-full text-base" disabled={busy}>
+              {busy ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </Button>
+          </form>
+          <p className="mt-6 text-center text-xs font-medium tracking-wide text-muted-foreground">
+            Admin • School Admin • Teacher
+          </p>
         </div>
       </div>
     </main>
